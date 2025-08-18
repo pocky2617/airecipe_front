@@ -1,0 +1,22 @@
+.main-nav {
+  display: flex;
+  justify-content: center;
+  gap: 480px;
+  background: black;
+  padding: 15px 0 20px 0;
+}
+
+.nav__item {
+  color: white;
+  background: none;
+  border: none;
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 8px 24px;
+  transition: color 0.2s;
+}
+
+.nav__item:hover {
+  color: #369afe;
+}

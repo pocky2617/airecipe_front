@@ -1,0 +1,75 @@
+.rank-page-bg {
+  background: #f7f7f7;
+  min-height: 100vh;
+  padding: 32px 0 0 0;
+}
+
+.rank-header {
+  width: 90vw;
+  max-width: 1200px;
+  margin: 0 auto 20px auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rank-header h2 {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 0;
+  letter-spacing: 0.2px;
+}
+
+.rank-dropdown-wrap {
+  min-width: 95px;
+}
+
+.rank-period-select {
+  padding: 7px 24px 7px 15px;
+  border-radius: 7px;
+  border: 1.5px solid #e2cfc9;
+  background: #fff url("data:image/svg+xml,%3Csvg width='16' height='16' fill='gray' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%23666' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 9px center/16px 16px;
+  font-size: 1.07rem;
+  color: #444;
+  appearance: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #ece0dd33;
+  font-weight: 500;
+}
+.rank-period-select:focus {
+  outline: 2px solid #369afe;
+  border-color: #369afe;
+}
+
+.rank-loading, .rank-error {
+  color: #b08c6d;
+  text-align: center;
+  margin: 50px 0;
+  font-size: 1.2rem;
+}
+
+/* 카드 리스트 (그리드) */
+.rank-recipe-list {
+  width: 90vw;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 35px;
+}
+
+/* 반응형 */
+@media (max-width: 900px) {
+  .rank-recipe-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 26px;
+  }
+}
+
+@media (max-width: 600px) {
+  .rank-recipe-list {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
