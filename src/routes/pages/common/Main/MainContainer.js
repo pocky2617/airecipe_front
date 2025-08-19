@@ -1,3 +1,4 @@
+// src/routes/pages/common/Main/MainContainer.js
 import { useState, useRef } from "react";
 import MainPresenter from "./MainPresenter";
 
@@ -12,16 +13,6 @@ const MainContainer = () => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-
-  // 챗봇 도킹 팝오버(인트로)
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const onOpenChat = () => setIsChatOpen(true);
-  const onCloseChat = () => setIsChatOpen(false);
-
-  // 채팅 패널(전체 화면 카드)
-  const [isChatPanelOpen, setIsChatPanelOpen] = useState(false);
-  const openChatPanel = () => setIsChatPanelOpen(true);
-  const closeChatPanel = () => setIsChatPanelOpen(false);
 
   const fileInputRef = useRef(null);
 
@@ -73,27 +64,23 @@ const MainContainer = () => {
     const url = URL.createObjectURL(file);
     setPreviewUrl(url);
     setSelectedFile(file);
-    setShowModal(true); // 미리보기 모달 표시
+    setShowModal(true);
   };
 
   const onConfirmUpload = async () => {
     if (!selectedFile) return;
-
     const formData = new FormData();
     formData.append("image", selectedFile);
-
     try {
       const res = await fetch("http://localhost:8000/api/recipes/upload", {
         method: "POST",
         body: formData,
       });
-
       if (!res.ok) throw new Error("서버 오류");
-
       const data = await res.json();
       setRecipes(data);
       setPage(1);
-      setShowModal(false); // 모달 닫기
+      setShowModal(false);
     } catch {
       alert("이미지 검색 실패");
     }
@@ -122,13 +109,6 @@ const MainContainer = () => {
         showModal={showModal}
         setShowModal={setShowModal}
         onConfirmUpload={onConfirmUpload}
-        /* 챗봇 인트로/패널 */
-        isChatOpen={isChatOpen}
-        onOpenChat={onOpenChat}
-        onCloseChat={onCloseChat}
-        isChatPanelOpen={isChatPanelOpen}
-        openChatPanel={openChatPanel}
-        closeChatPanel={closeChatPanel}
       />
     </>
   );

@@ -47,7 +47,7 @@ const MainPresenter = ({
         </div>
       </section>
 
-      {/* 이미지 미리보기 모달 */}
+      {/* 이미지 모달 */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -69,7 +69,7 @@ const MainPresenter = ({
         </div>
       )}
 
-      {/* 레시피 리스트 & 페이지네이션 */}
+      {/* 레시피 리스트 및 페이지네이션 */}
       <RecipeListContainer recipes={currentRecipes} />
       <PaginationPresenter
         totalPages={totalPages}
