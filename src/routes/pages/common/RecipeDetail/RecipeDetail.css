@@ -420,3 +420,9 @@
   background-color: #ccc;
   color: #333;
 }
+
+/* Translation 컴포넌트가 넘겨받는 클래스 임승재 추가 */
+.detail-lang-switch {
+  margin-top: 12px;   /* 상단 네비와 간격 */
+  margin-bottom: 10px;
+}

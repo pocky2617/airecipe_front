@@ -1,6 +1,11 @@
-import React, { useState, useMemo } from "react";
+// src/routes/pages/common/RecipeDetail/RecipeDetailPresenter.jsx
+import React, { useMemo, useState } from "react";
 import "./RecipeDetail.css";
 
+// [임승재 넣음] 언어 선택 버튼 컴포넌트
+import Translation from "../translation/translation";
+
+// 영양 단위
 const nutritionUnit = {
   칼로리: "kcal",
   탄수화물: "g",
@@ -11,8 +16,8 @@ const nutritionUnit = {
 
 const itemsPerPage = 3;
 
-// 별점 표시 컴포넌트 (클릭 시 모달 열기에 사용, onRate는 빈 함수 또는 제거)
-const StarRating = ({ rating }) => {
+// 별점 표시(읽기 전용) 컴포넌트
+const StarRating = ({ rating = 0 }) => {
   const [hover, setHover] = useState(0);
   return (
     <div
@@ -28,8 +33,8 @@ const StarRating = ({ rating }) => {
             fontSize: "24px",
             userSelect: "none",
           }}
-          // onMouseEnter={() => setHover(star)}
-          // onMouseLeave={() => setHover(0)}
+          onMouseEnter={() => setHover(star)}
+          onMouseLeave={() => setHover(0)}
         >
           ★
         </span>
@@ -38,29 +43,39 @@ const StarRating = ({ rating }) => {
   );
 };
 
-const RecipeDetailPresenter = ({
+export default function RecipeDetailPresenter({
   recipe,
   loading,
   error,
   relatedRecipes,
   userRating,
-  onRate,          // 별점 제출 콜백
-  favorite,        // 찜 여부
-  onToggleFavorite, // 찜 토글 콜백
-  favoriteLoading, // 찜 버튼 로딩 여부
-}) => {
+  onRate,              // 별점 제출 콜백
+  favorite,            // 찜 여부
+  onToggleFavorite,    // 찜 토글 콜백
+  favoriteLoading,     // 찜 버튼 로딩 여부
+
+  // [임승재 넣음] 언어 스위치용 props
+  lang,
+  onChangeLang,
+}) {
   const [slideIndex, setSlideIndex] = useState(0);
 
-  // 모달 열림 상태 추가
+  // 모달 상태(별점 입력)
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // 모달 내 임시 별점 상태
   const [tempRating, setTempRating] = useState(userRating || 0);
-  // 모달 내 별점 호버 상태
   const [hover, setHover] = useState(0);
 
-  // recipe 만드는 법 메모이제이션
-  const manual = useMemo(() => {
+  // [임승재 넣음] 만드는 법(steps) 계산
+  // - 번역 응답: recipe.steps / recipe.step_images 우선
+  // - 한국어(기존): MANUAL01~20 / MANUAL_IMG01~20 폴백
+  const stepsToRender = useMemo(() => {
     if (!recipe) return [];
+    // 번역 응답(배열) 우선
+    if (Array.isArray(recipe.steps) && recipe.steps.length > 0) {
+      const imgs = Array.isArray(recipe.step_images) ? recipe.step_images : [];
+      return recipe.steps.map((step, i) => ({ step: String(step || "").trim(), img: imgs[i] }));
+    }
+    // 폴백: 한국어 MANUALxx
     const arr = [];
     for (let i = 1; i <= 20; i++) {
       const step = recipe[`MANUAL${String(i).padStart(2, "0")}`];
@@ -70,41 +85,29 @@ const RecipeDetailPresenter = ({
       }
     }
     return arr;
-  }, [recipe]);
+  }, [recipe]); // [임승재 넣음] 끝
 
   const maxSlides = relatedRecipes ? Math.ceil(relatedRecipes.length / itemsPerPage) : 0;
   const visibleCards = relatedRecipes
     ? relatedRecipes.slice(slideIndex * itemsPerPage, (slideIndex + 1) * itemsPerPage)
     : [];
 
-  const handlePrev = () => {
-    setSlideIndex((prev) => (prev > 0 ? prev - 1 : maxSlides - 1));
-  };
-  const handleNext = () => {
-    setSlideIndex((prev) => (prev < maxSlides - 1 ? prev + 1 : 0));
-  };
+  const handlePrev = () => setSlideIndex((prev) => (prev > 0 ? prev - 1 : maxSlides - 1));
+  const handleNext = () => setSlideIndex((prev) => (prev < maxSlides - 1 ? prev + 1 : 0));
   const handleSimilarClick = (rcp_seq) => {
     if (!rcp_seq) return;
     window.location.href = `/recipedetail?id=${rcp_seq}`;
   };
 
-  // 모달 열기 함수
+  // 별점 모달 핸들러
   const openModal = () => {
     setTempRating(userRating || 0);
     setIsModalOpen(true);
   };
-  // 모달 닫기 함수
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-  // 모달 내 별점 선택 시 임시 상태 변경
-  const onTempRate = (star) => {
-    setTempRating(star);
-  };
-  // 모달 내 별점 제출
+  const closeModal = () => setIsModalOpen(false);
   const onSubmitRating = () => {
     if (tempRating > 0) {
-      onRate(tempRating);
+      onRate?.(tempRating);
       closeModal();
     }
   };
@@ -116,6 +119,14 @@ const RecipeDetailPresenter = ({
   return (
     <>
       <div className="recipe-detail-wrapper">
+        {/* [임승재 넣음] 언어 버튼: 제목 위, 우측 정렬 */}
+        <Translation
+          className="detail-lang-switch"  // 우측 정렬용 클래스
+          value={lang}
+          onChange={onChangeLang}
+        />
+        {/* [임승재 넣음] 끝 */}
+
         {/* 타이틀 및 즐겨찾기 */}
         <div className="recipe-detail-title-row">
           <h2 className="recipe-detail-title">{recipe.name || recipe.RCP_NM}</h2>
@@ -132,14 +143,14 @@ const RecipeDetailPresenter = ({
         {/* 별점 및 조회수 */}
         <div className="recipe-rating-info" style={{ marginBottom: 16 }}>
           <div>
-            <strong>평균 별점:</strong> {recipe.avg_rating?.toFixed(1) ?? "0.0"} ({recipe.rating_count ?? 0}명)
+            <strong>평균 별점:</strong>{" "}
+            {recipe.avg_rating?.toFixed?.(1) ?? "0.0"} ({recipe.rating_count ?? 0}명)
           </div>
           <div>
             <strong>조회수:</strong> {recipe.view_count ?? 0}
           </div>
           <div style={{ marginTop: 8 }}>
             <strong>내 별점 주기:</strong>
-            {/* 클릭 시 모달 열기 */}
             <div
               style={{ display: "inline-block", cursor: "pointer" }}
               onClick={openModal}
@@ -155,7 +166,7 @@ const RecipeDetailPresenter = ({
           </div>
         </div>
 
-        {/* 이미지 및 영양 정보 등 기존 UI */}
+        {/* 이미지 및 영양 정보 */}
         <div className="recipe-detail-main">
           <div className="recipe-detail-imgblock">
             <img
@@ -186,25 +197,47 @@ const RecipeDetailPresenter = ({
           </div>
         </div>
 
-        {(recipe.description || recipe.RCP_PARTS_DTLS) && (
+        {/* [임승재 넣음] 재료 섹션: 번역 응답 우선(ingredients 배열), 없으면 기존 설명으로 폴백 */}
+        {(Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0) ? (
+          <section>
+            <div className="ingredient-title">재료</div>
+            <ul className="ingredient-list">
+              {recipe.ingredients.map((it, i) => (
+                <li key={i}>{it}</li>
+              ))}
+            </ul>
+          </section>
+        ) : (recipe.description || recipe.RCP_PARTS_DTLS) ? (
           <section>
             <div className="ingredient-title">재료</div>
             <div className="ingredient-desc">{recipe.description || recipe.RCP_PARTS_DTLS}</div>
           </section>
-        )}
+        ) : null}
 
-        {manual.length > 0 && (
+        {/* 설명(옵션): 번역 응답의 description이 실제 설명 텍스트일 수 있어 별도 표기 */}
+        {recipe.description && Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0 && (
+          <section style={{ marginTop: 16 }}>
+            <div className="ingredient-title">설명</div>
+            <p>{recipe.description}</p>
+          </section>
+        )}
+        {/* [임승재 넣음] 끝 */}
+        
+        {/* 만드는 법 */}
+        {stepsToRender.length > 0 && (
           <section>
             <div className="manual-title">만드는 법</div>
             <div className="recipe-detail-manual-list-pigma">
-              {manual.map((m, idx) => (
+              {stepsToRender.map((m, idx) => (
                 <div className="manual-pigma-row" key={idx}>
                   <div className="manual-pigma-img-wrap">
                     {m.img && <img src={m.img} alt={`step${idx + 1}`} className="manual-pigma-img" />}
                   </div>
                   <div className="manual-pigma-box">
                     <span className="manual-pigma-num">{idx + 1}</span>
-                    <span className="manual-pigma-desc">{m.step.replace(/^(\d+\.)/, "").trim()}</span>
+                    <span className="manual-pigma-desc">
+                      {String(m.step).replace(/^(\d+\.)/, "").trim()}
+                    </span>
                   </div>
                 </div>
               ))}
@@ -212,6 +245,7 @@ const RecipeDetailPresenter = ({
           </section>
         )}
 
+        {/* TIP */}
         {recipe.RCP_NA_TIP && (
           <section className="recipe-detail-tip-pigma">
             <strong>TIP: </strong>
@@ -219,6 +253,7 @@ const RecipeDetailPresenter = ({
           </section>
         )}
 
+        {/* 유사 레시피 슬라이더 */}
         <section className="recipe-detail-similar">
           <h3 className="similar-title">유사한 레시피</h3>
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
@@ -255,7 +290,7 @@ const RecipeDetailPresenter = ({
         </section>
       </div>
 
-      {/* 별점 입력용 모달 */}
+      {/* 별점 입력 모달 */}
       {isModalOpen && (
         <div
           style={{
@@ -271,7 +306,7 @@ const RecipeDetailPresenter = ({
           aria-modal={true}
           role="dialog"
           aria-label="별점 입력 모달"
-          onClick={closeModal} // 바깥 클릭 시 닫기
+          onClick={closeModal}
         >
           <div
             style={{
@@ -283,7 +318,7 @@ const RecipeDetailPresenter = ({
               boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
             }}
             className="modal-content"
-            onClick={(e) => e.stopPropagation()} // 내부 클릭엔 닫기 방지
+            onClick={(e) => e.stopPropagation()}
           >
             <h3 style={{ marginBottom: 16 }}>별점을 선택하세요</h3>
             <div style={{ marginBottom: 24 }}>
@@ -334,6 +369,4 @@ const RecipeDetailPresenter = ({
       )}
     </>
   );
-};
-
-export default RecipeDetailPresenter;
+}

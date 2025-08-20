@@ -1,0 +1,64 @@
+/* src/routes/pages/common/translation/translation.css */
+
+/* 기본: 중앙 정렬(상황에 따라 override 가능) */
+.lang-switch {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 14px 0 18px; /* 상단 네비와 본문 사이 간격 */
+}
+
+/* 알약 그룹 배경 */
+.lang-switch__group {
+  display: inline-flex;
+  gap: 4px;                 /* 칩 간 미세 여백 */
+  padding: 4px;             /* 그룹 내부 여백 */
+  border-radius: 999px;     /* 둥근 캡슐 */
+  background: #f2f3f5;      /* 그룹 회색 배경 */
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+/* 개별 칩(버튼) */
+.lang-chip {
+  appearance: none;
+  border: none;
+  background: transparent;  /* 기본은 투명(그룹 배경이 보임) */
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5a5a5a;
+  line-height: 1;
+  cursor: pointer;
+  transition: background .15s ease, box-shadow .15s ease, color .15s ease;
+
+  /* 폭 균일화 */
+  width: 104px;             /* 버튼 폭 고정 */
+  text-align: center;
+}
+
+/* 활성 칩(선택됨) — 흰색 알약 + 미세 그림자 */
+.lang-chip.is-active {
+  background: #fff;
+  color: #111;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* 접근성 포커스 */
+.lang-chip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px #111, 0 0 0 4px #fff;
+}
+
+/* 호버 효과(선택 안 된 칩만 살짝 진하게) */
+.lang-chip:not(.is-active):hover {
+  background: rgba(255, 255, 255, 0.6);
+  color: #222;
+}
+
+/* 상세페이지에서 우측 정렬로 보이게(컴포넌트에 준 className로 override) */
+.detail-lang-switch {
+  width: 130%;                 /* 부모 폭 채움 */
+  justify-content: flex-end !important; /* 우측 정렬 (기본 중앙을 덮어씀) */
+  padding-right: 8px;          /* 선택: 오른쪽 여백 */
+}
